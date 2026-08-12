@@ -61,28 +61,7 @@ def _initialize_documents(
         dangerzone.add_document(Document(filename, output_filename, archive=archive))
 
 
-@click.command(
-    help=(
-        "Convert potentially dangerous documents to safe PDFs.\n\n"
-        "Documents are converted inside a sandbox, so that any embedded threats\n"
-        "are neutralized. You can also use OCR to add a searchable text layer\n"
-        "to the safe PDF, via the --ocr-lang option.\n\n"
-        f"Pass one or more file paths as arguments, or use '{args.STDIO_DESCRIPTOR}'\n"
-        "to read a document from standard input. For single-document conversions, you\n"
-        "can write the safe PDF to a file with -o <file>, or to standard output\n"
-        f"with -o {args.STDIO_DESCRIPTOR}.\n\n"
-        "Examples:\n\n"
-        "\b\n"
-        "    dangerzone-cli evidence.odt                      # create evidence-safe.pdf\n"
-        "    dangerzone-cli doc1.pdf doc2.docx                # create doc1-safe.pdf and doc2-safe.pdf\n"
-        "    dangerzone-cli --archive report.docx             # create report-safe.pdf and move the original under 'unsafe/'\n"
-        "    dangerzone-cli --ocr-lang eng scan.pdf           # add a searchable text layer\n"
-        "    dangerzone-cli -o safe.pdf evidence.odt          # create safe.pdf\n"
-        f"    dangerzone-cli -o {args.STDIO_DESCRIPTOR} evidence.odt > safe.pdf      # write the safe PDF to stdout\n"
-        f"    cat evidence.pdf | dangerzone-cli {args.STDIO_DESCRIPTOR} -o safe.pdf  # read from stdin and write to safe.pdf\n"
-        f"    cat in.pdf | dangerzone-cli {args.STDIO_DESCRIPTOR} -o {args.STDIO_DESCRIPTOR} > out.pdf     # read from stdin to write to stdout\n"
-    )
-)
+@click.command()
 @click.option(
     "--output-filename",
     "-o",
@@ -149,6 +128,28 @@ def run(
     set_container_runtime: str | None = None,
     linger: bool = False,
 ) -> None:
+    """Convert potentially dangerous documents to safe PDFs.
+
+    Documents are converted inside a sandbox, so that any embedded threats
+    are neutralized. You can also use OCR to add a searchable text layer
+    to the safe PDF, via the --ocr-lang option.
+
+    Pass one or more file paths as arguments, or use '-' to read a document from
+    standard input. For single-document conversions, you can write the safe PDF to a
+    file with '-o <file>', or to standard output with '-o -'.
+
+    Examples:
+
+    \b
+        dangerzone-cli evidence.odt                  # convert to 'evidence-safe.pdf'
+        dangerzone-cli doc1.pdf doc2.docx            # convert to 'doc1-safe.pdf' and 'doc2-safe.pdf'
+        dangerzone-cli --archive report.docx         # convert to 'report-safe.pdf' and move the original under './unsafe/'
+        dangerzone-cli --ocr-lang eng scan.pdf       # add a searchable text layer in English
+        dangerzone-cli -o out.pdf in.pdf             # write to 'out.pdf'
+        dangerzone-cli -o - in.pdf > out.pdf         # write to stdout and pipe to 'out.pdf'
+        dangerzone-cli - -o out.pdf < in.pdf         # read from stdin and write to 'out.pdf'
+        dangerzone-cli - -o - < in.pdf > out.pdf     # read from stdin, write to stdout and pipe to 'out.pdf'
+    """
     setup_logging()
     display_banner()
     settings = Settings(debug=debug)
